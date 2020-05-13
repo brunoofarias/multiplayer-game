@@ -1,10 +1,12 @@
+import { mod } from "./utils.js"
+
 export default function createGame() {
     const state = {
         players: {},
         fruits: {},
         screen: {
-            width: 20,
-            height: 20
+            width: 50,
+            height: 50
         }
     }
 
@@ -34,17 +36,20 @@ export default function createGame() {
         const { playerId } = command
         const playerX = 'playerX' in command ? command.playerX : Math.floor(Math.random() * state.screen.width)
         const playerY = 'playerY' in command ? command.playerY : Math.floor(Math.random() * state.screen.height)
+        const score = 0
 
         state.players[playerId] = {
             x: playerX,
-            y: playerY
+            y: playerY,
+            score
         }
 
         notifyAll({
             type: 'add-player',
             playerId: playerId,
             playerX: playerX,
-            playerY:playerY
+            playerY:playerY,
+            score
         })
     }
 
@@ -89,24 +94,16 @@ export default function createGame() {
 
         const acceptedMoves = {
             ArrowUp(player) {
-                if (player.y - 1 >= 0) {
-                    player.y = player.y - 1
-                }
+                player.y = mod(state.screen.height, player.y - 1)
             },
             ArrowRight(player) {
-                if (player.x + 1 < state.screen.width) {
-                    player.x = player.x + 1
-                }
+                player.x = mod(state.screen.width, player.x + 1)
             },
             ArrowDown(player) {
-                if (player.y + 1 < state.screen.height) {
-                    player.y = player.y + 1
-                }
+                player.y = mod(state.screen.height, player.y + 1)
             },
             ArrowLeft(player) {
-                if (player.x - 1 >= 0) {
-                    player.x = player.x - 1
-                }
+                player.x = mod(state.screen.width, player.x - 1)
             }
         }
 
@@ -128,6 +125,7 @@ export default function createGame() {
 
             if (player.y === fruit.y && player.x === fruit.x) {
                 removeFruit({ fruitId: fruitId })
+                player.score += 1
             }
         }
     }
